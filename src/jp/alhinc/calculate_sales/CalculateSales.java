@@ -45,14 +45,13 @@ public class CalculateSales {
 		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)
 		//listFilesを使⽤してfilesという配列に、
 		//指定したパスに存在する全てのファイル(または、ディレクトリ)の情報を格納します。
-		File[] files = new File("C:\\Users\\trainee1723\\Desktop\\売上集計課題").listFiles();
+		File[] files = new File(args[0]).listFiles();
 
 		// 先にファイルの情報を格納する List(ArrayList) を宣⾔します。
 		List<File> rcdFiles = new ArrayList<>();
 
 		//filesの数だけ繰り返すことで、
 		//指定したパスに存在する全てのファイル(または、ディレクトリ)の数だけ繰り返されます。
-
 
 		for (int i = 0; i < files.length; i++) {
 			// ファイル名の取得
@@ -63,25 +62,22 @@ public class CalculateSales {
 				rcdFiles.add(files[i]);
 			}
 		}
-				//rcdFilesに複数の売上ファイルの情報を格納しているので、その数だけ繰り返します。
-				for (int n = 0; n < rcdFiles.size(); n++) {
-					// 売上ファイルを1つずつ読み込む処理（readRcdの呼び出し等）を記述します
-					// 処理対象のファイルをリストから1つ取り出す
-					File targetFile = rcdFiles.get(n);
-
-					// 作成した readRcd メソッドをここで呼び出す！
-					if (!readRcd(args[0], targetFile.getName(), branchNames, branchSales)) {
-						return; // 読み込み中にエラーが起きたらプログラムを終了する
-					}
-				}
-
-				// メインメソッドの最後（すべての集計が終わった後）で書き込みを行います
-				if (!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
-					return;
-				}
+		//rcdFilesに複数の売上ファイルの情報を格納しているので、その数だけ繰り返します。
+		for (int i = 0; i < rcdFiles.size(); i++) {
+			// 売上ファイルを1つずつ読み込む処理（readRcdの呼び出し等）を記述します
+			// 処理対象のファイルをリストから1つ取り出す
+			File targetFile = rcdFiles.get(i);
+			// 作成した readRcd メソッドをここで呼び出す！
+			if (!readRcd(args[0], targetFile.getName(), branchNames, branchSales)) {
+				return; // 読み込み中にエラーが起きたらプログラムを終了する
 			}
+		}
 
-
+		// メインメソッドの最後（すべての集計が終わった後）で書き込みを行います
+		if (!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
+			return;
+			}
+	}
 
 	// 売上ファイル読み込み処理
 	private static boolean readRcd(String path, String money, Map<String, String> branchNames,
@@ -113,8 +109,6 @@ public class CalculateSales {
 				long totalSale = currentSale + fileSale;
 				//計算が終わった合計金額（totalSale）をMapに保存する
 				branchSales.put(branchCode, totalSale);
-
-				System.out.println(totalSale);
 			}
 			return true;
 
@@ -160,23 +154,13 @@ public class CalculateSales {
 				//split を使って「,」(カンマ)で分割すると、
 				//items[0] には⽀店コード、items[1] には⽀店名が格納されます。
 				String[] items = line.split(",");
-
-				// 正しく2つに分割できていなければスキップ
-				if (items.length < 2) {
-					continue;
-				}
-
 				// 固定の文字ではなく、ファイルから読み込んだデータをMapに追加します
 				String branchCode = items[0]; // 支店コード
 				String branchName = items[1]; // 支店名
-
 				//Mapに追加する2つの情報を putの引数として指定します。
 				branchNames.put(branchCode, branchName);
 				branchSales.put(branchCode, 0L); // 初期の売上金額は一律「0円」で登録
-
-				System.out.println(line);
 			}
-
 		} catch (IOException e) {
 			System.out.println(UNKNOWN_ERROR);
 			return false;
@@ -204,33 +188,28 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 書き込み可否
 	 */
-		private static boolean writeFile(String path, String fileNameBranchOut, Map<String, String> branchNames,
+		private static boolean writeFile(String path, String fileName, Map<String, String> branchNames,
 				Map<String, Long> branchSales) {
 			// ※ここに書き込み処理を作成してください。(処理内容3-1)
 			BufferedWriter bw = null;
 			try {
-				File file = new File(path, fileNameBranchOut);
+				File file = new File(path, fileName);
 				FileWriter fw = new FileWriter(file);
 				bw = new BufferedWriter(fw);
-				System.out.println("Mapのデータ件数: " + branchNames.size()); // これが 0 と表示されたら、読み込み側に問題があります
 
 				for (String key : branchNames.keySet()) {
 					String name = branchNames.get(key);
 					Long sales = branchSales.get(key);
-					// 【出力例】「キー,支店名,売上」というCSV形式の文字列を作る
-					// ※指定の出力フォーマット（カンマ区切り、改行のみ等）に合わせて変更してください
 					String line = key + "," + name + "," + sales;
 					// ファイルへの書き込み処理
 					bw.write(line); // 組み立てた文字列を書き込む
 					bw.newLine();   // 次のループのために改行を入れる
 				}
-				bw.close();
-				return true;
 					//keyという変数には、Mapから取得したキーが代入されています。
 					//拡張for⽂で繰り返されているので、1つ⽬のキーが取得できたら、
 					//2つ⽬の取得...といったように、次々とkeyという変数に上書きされていきます。
 			}catch(IOException e) {
-				System.out.println(FILE_NAME_BRANCH_OUT);
+				System.out.println(UNKNOWN_ERROR);
 			}finally {
 				try {
 					if (bw != null) {
@@ -238,10 +217,10 @@ public class CalculateSales {
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
+					return false;
 				}
 			}
-
-			return false;
+			return true;
 		}
 }
 
