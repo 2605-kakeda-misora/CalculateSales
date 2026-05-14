@@ -1,8 +1,10 @@
 package jp.alhinc.calculate_sales;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,11 +75,14 @@ public class CalculateSales {
 					}
 				}
 
-	// メインメソッドの最後（すべての集計が終わった後）で書き込みを行います
-	//if (!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
-	//return;
-	//}
-	}
+				// メインメソッドの最後（すべての集計が終わった後）で書き込みを行います
+				if (!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
+					return;
+				}
+			}
+
+
+
 	// 売上ファイル読み込み処理
 	private static boolean readRcd(String path, String money, Map<String, String> branchNames,
 			Map<String, Long> branchSales) {
@@ -87,29 +92,31 @@ public class CalculateSales {
 			FileReader fr = new FileReader(file);
 			br = new BufferedReader(fr);
 
-			String line;
+			String branchCodeline;
+			String fileSaleline;
 			// 一行ずつ読み込む
-			while ((line = br.readLine()) != null) {
-				//カンマで分割する
-				String[] items = line.split(",");
-				//もし正しく2つに分割できていなければ、この行の処理はスキップします
-				if (items.length < 2) {
-					continue;
-				}
+			while ((branchCodeline = br.readLine()) != null && (fileSaleline = br.readLine())!= null) {
+
 				// 分割したデータから「支店コード」と「売上金額」を抜き出す
 				//支店コードを抽出
-				String branchCode = items[0];
+				String branchCode = branchCodeline;
 				//売上額を抽出（数字に変換）
-				long fileSale = Long.parseLong(items[1]);
-				// 現在Mapに入っている、その支店の「これまでの売上合計」を取り出す
-				long currentSale = branchSales.get(branchCode);
+				long fileSale = Long.parseLong(fileSaleline);
+				// 初期値を0にする
+				long currentSale = 0;
+
+				// すでにMapにその支店が存在する場合のみ、現在の売上を取り出す
+				if (branchSales.containsKey(branchCode)) {
+				    currentSale = branchSales.get(branchCode);
+				}
 				// 新しい売上を足し算する
 				long totalSale = currentSale + fileSale;
 				//計算が終わった合計金額（totalSale）をMapに保存する
 				branchSales.put(branchCode, totalSale);
 
-				System.out.println(line);
+				System.out.println(totalSale);
 			}
+			return true;
 
 		} catch (IOException e) {
 			System.out.println(UNKNOWN_ERROR);
@@ -126,16 +133,6 @@ public class CalculateSales {
 				}
 			}
 		}
-
-		//売上ファイルから読み込んだ売上金額をMapに加算していくために、型の変換を行います。
-		for (String key : branchSales.keySet()) {
-			if (branchSales.get(key) != null) {
-				long cost = branchSales.get(key);
-				branchSales.put(key, cost);
-			}
-		}
-
-		return true;
 	}
 
 	/**
@@ -210,6 +207,40 @@ public class CalculateSales {
 		private static boolean writeFile(String path, String fileNameBranchOut, Map<String, String> branchNames,
 				Map<String, Long> branchSales) {
 			// ※ここに書き込み処理を作成してください。(処理内容3-1)
+			BufferedWriter bw = null;
+			try {
+				File file = new File(path, fileNameBranchOut);
+				FileWriter fw = new FileWriter(file);
+				bw = new BufferedWriter(fw);
+				System.out.println("Mapのデータ件数: " + branchNames.size()); // これが 0 と表示されたら、読み込み側に問題があります
+
+				for (String key : branchNames.keySet()) {
+					String name = branchNames.get(key);
+					Long sales = branchSales.get(key);
+					// 【出力例】「キー,支店名,売上」というCSV形式の文字列を作る
+					// ※指定の出力フォーマット（カンマ区切り、改行のみ等）に合わせて変更してください
+					String line = key + "," + name + "," + sales;
+					// ファイルへの書き込み処理
+					bw.write(line); // 組み立てた文字列を書き込む
+					bw.newLine();   // 次のループのために改行を入れる
+				}
+				bw.close();
+				return true;
+					//keyという変数には、Mapから取得したキーが代入されています。
+					//拡張for⽂で繰り返されているので、1つ⽬のキーが取得できたら、
+					//2つ⽬の取得...といったように、次々とkeyという変数に上書きされていきます。
+			}catch(IOException e) {
+				System.out.println(FILE_NAME_BRANCH_OUT);
+			}finally {
+				try {
+					if (bw != null) {
+						bw.close();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
 			return false;
 		}
 }
