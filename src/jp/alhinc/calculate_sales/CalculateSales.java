@@ -73,8 +73,12 @@ public class CalculateSales {
 
 			//読み込む対象ファイルオブジェクトを生成
 			File file = new File(args[0], targetFile.getName());
-			// BufferedReaderを使ってファイルを開く（自動クローズ対応）
-			try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			// BufferedReaderを使ってファイルを開く
+
+			BufferedReader br = null;
+
+			try  {
+				 br = new BufferedReader(new FileReader(file));
 				String branchCodeline;
 				String fileSaleline;
 				// コード保持用
@@ -110,6 +114,17 @@ public class CalculateSales {
 				// 読み込み中にエラーが起きたらエラーメッセージを出してプログラムを終了する
 				System.out.println(UNKNOWN_ERROR);
 				return;
+			}finally {
+				// ファイルを開いている場合
+				if (br != null) {
+					try {
+						// ファイルを閉じる
+						br.close();
+					} catch (IOException e) {
+						System.out.println(UNKNOWN_ERROR);
+						return;
+					}
+				}
 			}
 		}
 
