@@ -67,19 +67,17 @@ public class CalculateSales {
 		for (int i = 0; i < files.length; i++) {
 			// ファイル名の取得
 			String FileName = files[i].getName();
-			if (FileName.matches(".*\\.rcd$")) {
-				// 対象がファイルであり、「数字8桁.rcd」なのか判定
-				if (files[i].isFile() && FileName.matches("^[0-9]{8}\\.rcd")) {
-					// 売上ファイルの条件に当てはまったものだけ、List(ArrayList) に追加
-					rcdFiles.add(files[i]);
-				}
+			// 対象がファイルであり、「数字8桁.rcd」なのか判定
+			if (files[i].isFile() && FileName.matches("^[0-9]{8}\\.rcd")) {
+				// 売上ファイルの条件に当てはまったものだけ、List(ArrayList) に追加
+				rcdFiles.add(files[i]);
 			}
 		}
 		//連番チェックを⾏う前に、売上ファイルを保持しているListをソートする
 		Collections.sort(rcdFiles);
 		// ⽐較回数は売上ファイルの数よりも1回少ないため、
 		// 繰り返し回数は売上ファイルのリストの数よりも1つ⼩さい数です。
-		for (int i = 0; i < rcdFiles.size() -1; i++) {
+		for (int i = 0; i < rcdFiles.size() - 1; i++) {
 
 			// 現在のファイル名と次のファイル名を取得（Fileオブジェクトから名前を取り出す）
 			String formerFileName = rcdFiles.get(i).getName();
@@ -98,7 +96,7 @@ public class CalculateSales {
 		}
 		//rcdFilesに複数の売上ファイルの情報を格納しているので、その数だけ繰り返します。
 		for (int i = 0; i < rcdFiles.size(); i++) {
-			
+
 			// 売上ファイルを1つずつ読み込む処理
 			// 処理対象のファイルをリストから1つ取り出す
 			File targetFile = rcdFiles.get(i);
@@ -111,14 +109,14 @@ public class CalculateSales {
 
 			try {
 				br = new BufferedReader(new FileReader(file));
-				
+
 				List<String> fileLines = new ArrayList<>();
-		        String line;
-				
-		        // BufferedReaderを使って、ファイルの全行を fileLines に読み込む
-		        while ((line = br.readLine()) != null) {
-		            fileLines.add(line);
-		        }
+				String line;
+
+				// BufferedReaderを使って、ファイルの全行を fileLines に読み込む
+				while ((line = br.readLine()) != null) {
+					fileLines.add(line);
+				}
 				////売上ファイルの⾏数が2⾏ではなかった場合は、
 				//エラーメッセージをコンソールに表⽰します。
 				if (fileLines.size() != 2) {
@@ -126,62 +124,59 @@ public class CalculateSales {
 					return;
 				}
 
-				  // 1つのリスト（fileLines）から1行目と2行目を取得する
-		        String branchCode = fileLines.get(0);
-		        //支店コードのフォーマット確認
-		        String fileSaleline = fileLines.get(1);  
-		        if (!branchNames.containsKey(branchCode)) {
-		            System.out.println(file.getName() + BRANCHCODE_INVALID_FORMAT);
-		            return;
-		        }
-		        
-		        // 売上⾦額が数字ではなかった場合は、
-		        // エラーメッセージをコンソールに表⽰します。
-		        if (!fileSaleline.matches("^[0-9]+$")) {
-		            System.out.println(UNKNOWN_ERROR);
-		            return;
-		        }
-		        // 数字（long型)に変換
-		        long fileSale = Long.parseLong(fileSaleline);
-		        // Mapから値を取り出す
-		        Long savedSale = branchSales.get(branchCode);
-		        // 初期化
-		        long currentSale = 0;
-		        // savedSale が null ではない時その取れた過去の売上額を currentSale に上書き
-		        if (savedSale != null) {
-		            currentSale = savedSale;
-		        }
-		        // 合計金額の計算
-		        long totalSale = currentSale + fileSale;
-		        if (totalSale >= 10000000000L) {
-		            // 売上⾦額が11桁以上の場合、エラーメッセージをコンソールに表⽰します。
-		            System.out.println(TOTALSALE_INVALID_FORMAT);
-		            return;
-		        }
+				// 1つのリスト（fileLines）から1行目と2行目を取得する
+				String branchCode = fileLines.get(0);
+				//支店コードのフォーマット確認
+				String fileSaleline = fileLines.get(1);
+				if (!branchNames.containsKey(branchCode)) {
+					System.out.println(file.getName() + BRANCHCODE_INVALID_FORMAT);
+					return;
+				}
 
-		        // Mapへの保存
-		        branchSales.put(branchCode, totalSale);
+				// 売上⾦額が数字ではなかった場合は、
+				// エラーメッセージをコンソールに表⽰します。
+				if (!fileSaleline.matches("^[0-9]+$")) {
+					System.out.println(UNKNOWN_ERROR);
+					return;
+				}
+				// 数字（long型)に変換
+				long fileSale = Long.parseLong(fileSaleline);
+				// Mapから値を取り出す
+				Long savedSale = branchSales.get(branchCode);
+				// 初期化
+				long currentSale = 0;
+				currentSale = savedSale;
+				// 合計金額の計算
+				long totalSale = currentSale + fileSale;
+				if (totalSale >= 10000000000L) {
+					// 売上⾦額が11桁以上の場合、エラーメッセージをコンソールに表⽰します。
+					System.out.println(TOTALSALE_INVALID_FORMAT);
+					return;
+				}
 
-		    } catch (IOException e) {
-		        // 読み込み中にエラーが起きたらエラーメッセージを出してプログラムを終了する
-		        System.out.println(UNKNOWN_ERROR);
-		        return;
-		    } finally {
-		        // ファイルを開いている場合
-		        if (br != null) {
-		            try {
-		                // ファイルを閉じる
-		                br.close();
-		            } catch (IOException e) {
-		                System.out.println(UNKNOWN_ERROR);
-		                return;
-		            }
-		        }
-		    }
+				// Mapへの保存
+				branchSales.put(branchCode, totalSale);
+
+			} catch (IOException e) {
+				// 読み込み中にエラーが起きたらエラーメッセージを出してプログラムを終了する
+				System.out.println(UNKNOWN_ERROR);
+				return;
+			} finally {
+				// ファイルを開いている場合
+				if (br != null) {
+					try {
+						// ファイルを閉じる
+						br.close();
+					} catch (IOException e) {
+						System.out.println(UNKNOWN_ERROR);
+						return;
+					}
+				}
+			}
 		}
 
-	// メインメソッドの最後（すべての集計が終わった後）で書き込みを行います
-	if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
+		// メインメソッドの最後（すべての集計が終わった後）で書き込みを行います
+		if (!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
 			return;
 		}
 	}
