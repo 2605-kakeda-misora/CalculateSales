@@ -143,11 +143,8 @@ public class CalculateSales {
 				long fileSale = Long.parseLong(fileSaleline);
 				// Mapから値を取り出す
 				Long savedSale = branchSales.get(branchCode);
-				// 初期化
-				long currentSale = 0;
-				currentSale = savedSale;
 				// 合計金額の計算
-				long totalSale = currentSale + fileSale;
+				long totalSale = savedSale + fileSale;
 				if (totalSale >= 10000000000L) {
 					// 売上⾦額が11桁以上の場合、エラーメッセージをコンソールに表⽰します。
 					System.out.println(TOTALSALE_INVALID_FORMAT);
