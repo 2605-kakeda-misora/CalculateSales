@@ -58,11 +58,11 @@ public class CalculateSales {
 		}
 
 		//支店定義ファイル読み込み処理
-		if (!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales, "^[0-9]{3}$","支店")) {
+		if (!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales, "^[0-9]{3}$", "支店")) {
 			return;
 		}
 		//商品定義ファイル読み込み処理
-		if (!readFile(args[0], FILE_NAME_COMMODITY_LST, commodityNames, commoditySales, "^[a-zA-Z0-9]{8}$","商品")) {
+		if (!readFile(args[0], FILE_NAME_COMMODITY_LST, commodityNames, commoditySales, "^[a-zA-Z0-9]{8}$", "商品")) {
 			return;
 		}
 		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)
@@ -88,7 +88,7 @@ public class CalculateSales {
 		Collections.sort(rcdFiles);
 		// ⽐較回数は売上ファイルの数よりも1回少ないため、
 		// 繰り返し回数は売上ファイルのリストの数よりも1つ⼩さい数です。
-		for (int i = 0; i < rcdFiles.size() - 1; i++) {
+		for (int i = 0; i < rcdFiles.size() -1; i++) {
 
 			// 現在のファイル名と次のファイル名を取得（Fileオブジェクトから名前を取り出す）
 			String formerFileName = rcdFiles.get(i).getName();
@@ -216,7 +216,7 @@ public class CalculateSales {
 	 * @return 読み込み可否
 	 */
 	private static boolean readFile(String path, String fileName, Map<String, String> namesMap,
-			Map<String, Long> salesMap, String regex,String targetName) {
+			Map<String, Long> salesMap, String regex, String targetName) {
 		BufferedReader br = null;
 
 		try {
@@ -244,26 +244,15 @@ public class CalculateSales {
 					System.out.println(targetName + FILE_INVALID_FORMAT);
 					return false;
 				}
-				// 引数 fileName の値を条件分岐に利用して、正規表現を切り替える
-				if (fileName.equals(FILE_NAME_BRANCH_LST)) {
-					// 支店コード（items[0]）が数字3桁かチェック
-					if (!items[0].matches(regex)) {
-						System.out.println(FILE_INVALID_FORMAT);
-						return false;
-					}
-				} else if (fileName.equals(FILE_NAME_COMMODITY_LST)) {
-					// 商品コード（items[0]）が英数字8桁かチェック
-					if (!items[0].matches(regex)){
-						System.out.println(FILE_INVALID_FORMAT);
-						return false;
-					}
+				// 正規表現のチェックファイルの中身
+				if (!items[0].matches(regex)) {
+				    System.out.println(String.format(targetName + FILE_INVALID_FORMAT));
+				    return false;
 				}
 				namesMap.put(items[0], items[1]);
 				salesMap.put(items[0], 0L); // 初期の売上金額は一律「0円」で登録
 			}
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			System.out.println(UNKNOWN_ERROR);
 			return false;
 		} finally {
