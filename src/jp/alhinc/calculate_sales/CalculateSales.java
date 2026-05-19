@@ -239,15 +239,10 @@ public class CalculateSales {
 				//split を使って「,」(カンマ)で分割すると、
 				//items[0] には⽀店コード、items[1] には⽀店名が格納されます。
 				String[] items = line.split(",");
-				// 配列の要素数チェックを行う
-				if (items.length != 2) {
+				// 配列の要素数チェック、正規表現のチェックを行う
+				if ((items.length != 2) ||(!items[0].matches(regex))){
 					System.out.println(targetName + FILE_INVALID_FORMAT);
 					return false;
-				}
-				// 正規表現のチェックファイルの中身
-				if (!items[0].matches(regex)) {
-				    System.out.println(String.format(targetName + FILE_INVALID_FORMAT));
-				    return false;
 				}
 				namesMap.put(items[0], items[1]);
 				salesMap.put(items[0], 0L); // 初期の売上金額は一律「0円」で登録
