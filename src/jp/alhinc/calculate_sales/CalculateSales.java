@@ -28,8 +28,8 @@ public class CalculateSales {
 
 	// エラーメッセージ
 	private static final String UNKNOWN_ERROR = "予期せぬエラーが発生しました";
-	private static final String FILE_NOT_EXIST = "定義ファイルが存在しません";
-	private static final String FILE_INVALID_FORMAT = "定義ファイルのフォーマットが不正です";
+	private static final String FILE_NOT_EXIST = "%s定義ファイルが存在しません";
+	private static final String FILE_INVALID_FORMAT = "%s定義ファイルのフォーマットが不正です";
 	private static final String FILE_NAME_INVALID_FORMAT = "のフォーマットが不正です";
 	private static final String TOTALSALE_INVALID_FORMAT = "合計金額が10桁を超えました";
 
@@ -101,11 +101,11 @@ public class CalculateSales {
 			// 2つのファイル名の数字を⽐較して、差が1ではなかったら、
 			// エラーメッセージをコンソールに表⽰します。
 			if ((latter - former) != 1) {
-				System.out.println(BRANCHFILE_INVALID_FORMAT);
+				System.out.println(FILE_INVALID_FORMAT);
 				return;
 			}
 		}
-		//rcdFilesに複数の売上ファイルの情報を格納しているので、その数だけ繰り返します。
+		//rcdFilesに複数の売上ファイルの情報を格納しているので、その数だけ繰り返す
 		for (int i = 0; i < rcdFiles.size(); i++) {
 
 			// 売上ファイルを1つずつ読み込む処理
@@ -196,8 +196,7 @@ public class CalculateSales {
 				}
 			}
 		}
-
-		//メインメソッドの最後（すべての集計が終わった後）で支店別集計ファイルへの書き込みを行います
+		//メインメソッドの最後（すべての集計が終わった後）で支店別集計ファイルへの書き込みを行う
 		if (!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
 			return;
 		}
@@ -242,20 +241,20 @@ public class CalculateSales {
 				String[] items = line.split(",");
 				// 配列の要素数チェックを行う
 				if (items.length != 2) {
-					System.out.println(targetName + BRANCHFILE_INVALID_FORMAT);
+					System.out.println(targetName + FILE_INVALID_FORMAT);
 					return false;
 				}
 				// 引数 fileName の値を条件分岐に利用して、正規表現を切り替える
 				if (fileName.equals(FILE_NAME_BRANCH_LST)) {
 					// 支店コード（items[0]）が数字3桁かチェック
 					if (!items[0].matches(regex)) {
-						System.out.println(BRANCHFILE_INVALID_FORMAT);
+						System.out.println(FILE_INVALID_FORMAT);
 						return false;
 					}
 				} else if (fileName.equals(FILE_NAME_COMMODITY_LST)) {
 					// 商品コード（items[0]）が英数字8桁かチェック
 					if (!items[0].matches(regex)){
-						System.out.println(COMMODITYFILE_INVALID_FORMAT);
+						System.out.println(FILE_INVALID_FORMAT);
 						return false;
 					}
 				}
@@ -308,9 +307,9 @@ public class CalculateSales {
 				bw.write(line); // 組み立てた文字列を書き込む
 				bw.newLine(); // 次のループのために改行を入れる
 			}
-			//keyという変数には、Mapから取得したキーが代入されています。
+			//keyという変数には、Mapから取得したキーが代入される
 			//拡張for⽂で繰り返されているので、1つ⽬のキーが取得できたら、
-			//2つ⽬の取得...といったように、次々とkeyという変数に上書きされていきます。
+			//2つ⽬の取得...といったように、次々とkeyという変数に上書きされる。
 		} catch (IOException e) {
 			System.out.println(UNKNOWN_ERROR);
 			return false;
